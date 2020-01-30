@@ -14,10 +14,13 @@ app_id = 1360938750683878
 #Paramaters for API request. Chance for issues with rich presence but I'm not sure which titles use it.
 params = { 'current_status' : 'ONLINE', 'app_id_override' : app_id, 'in_vr' : 'true'}
 
-while True:
-	response = requests.post(heartbeat, params)
-	print("Heartbeat submitted")
-	#Response should contain current_room_id if working correctly (at least for Stormland)
-	print(response.content)
-	#Oculus client sends heartbeats every 10 seconds when in game
-	time.sleep(10)
+def main():
+	while True:
+		response = requests.post(heartbeat, params)
+		print("Heartbeat submitted")
+		#Response should contain current_room_id if working correctly (at least for Stormland)
+		print(response.content)
+		#Oculus client sends heartbeats every 10 seconds when in game
+		time.sleep(10)
+	
+main()
