@@ -53,7 +53,7 @@ def main():
 	heartbeat_url = "https://graph.oculus.com/user_heartbeat?access_token=" + oauth
 
 	#Oculus App ID. Can be acquired from oculus store at https://www.oculus.com/experiences/rift/appid
-	app_id = 1360938750683878 
+	app_id = 1369078409873402 
 	#1360938750683878 for Stormland, 1369078409873402 for Echo VR
 
 	#Paramaters for API request. Chance for issues with rich presence but I'm not sure which titles use it.
