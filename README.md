@@ -6,6 +6,8 @@ The Oculus Platform API requires a "heartbeat" sent via the Oculus desktop clien
 1. Install Python
 2. Install requests (pip install requests)
 3. Configure script with game App ID. Can be found at on the Oculus store at: oculus(dot)com/experiences/rift/appid
+
+If you need further assistance, here's a video installation guide: https://www.youtube.com/watch?v=vPRlSaFxUpg
 # Usage
 1. Start script
 2. A response with "current_room_id" indicates it is working correctly
