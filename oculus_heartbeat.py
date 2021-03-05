@@ -66,6 +66,8 @@ def main():
 			if r.status_code == 200:
 				print("Heartbeat submitted successfully with response: {}".format(r.text))
 				time.sleep(10)
+			else:
+				print("Heartbeat failed with status code: {} and response: {}".format(r.status_code, r.text))
 		except Exception as e:
 			print(e)
 			break
