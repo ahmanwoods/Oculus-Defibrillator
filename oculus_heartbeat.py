@@ -68,6 +68,7 @@ def main():
 				time.sleep(10)
 			else:
 				print("Heartbeat failed with status code: {} and response: {}".format(r.status_code, r.text))
+				time.sleep(10)
 		except Exception as e:
 			print(e)
 			break
