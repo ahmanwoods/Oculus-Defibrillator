@@ -24,13 +24,14 @@ def get_oauth_token():
 
 			#The token we need is stored in 'last_valid_auth_token'
 			if sql_bytes != '':
-				offset = sql_bytes.find(b'last_valid_auth_token') + 31
+				start_offset = sql_bytes.find(b'last_valid_auth_token') + 31
 			else:
 				raise Exception("No byte array values found in __OAF_OFFLINE_DATA_KEY__")
 
 			#Extract the token
-			if offset != -1:
-				token = sql_bytes[offset : offset + 98]
+			if start_offset != -1:
+				delimeter_offset = sql_bytes.find(b'\x1a\x00\x00\x00last_valid_fb_access_token')
+				token = sql_bytes[start_offset : delimeter_offset]
 				return token.decode('ascii')
 			else:
 				raise Exception("last_valid_auth_token not found in db")
@@ -48,26 +49,27 @@ def get_oauth_token():
 def main():
 	#Oculus client Oauth token. 
 	oauth = get_oauth_token()
-
+	print("Acquired OAuth Token: {}".format(oauth))
+	
 	#Heartbeat API URL
-	heartbeat_url = "https://graph.oculus.com/user_heartbeat?access_token=" + oauth
+	heartbeat_url = "https://graph.oculus.com/user_heartbeat"
 
 	#Oculus App ID. Can be acquired from oculus store at https://www.oculus.com/experiences/rift/appid
 	app_id = 1369078409873402 
 	#1360938750683878 for Stormland, 1369078409873402 for Echo VR
 
 	#Paramaters for API request. Chance for issues with rich presence but I'm not sure which titles use it.
-	params = { 'current_status' : 'ONLINE', 'app_id_override' : app_id, 'in_vr' : 'true'}
+	params = { 'access_token': oauth, 'current_status' : 'ONLINE', 'app_id_override' : app_id, 'in_vr' : 'true'}
 
 	while True:
 		try:
-			r = requests.post(heartbeat_url, params)
+			r = requests.post(heartbeat_url, json=params)
 			#200 on successful post
 			if r.status_code == 200:
 				print("Heartbeat submitted successfully with response: {}".format(r.text))
 				time.sleep(10)
 			else:
-				print("Heartbeat failed with status code: {} and response: {}".format(r.status_code, r.text))
+				print("Heartbeat FAILED with status code: {} and response: {}".format(r.status_code, r.text))
 				time.sleep(10)
 		except Exception as e:
 			print(e)
