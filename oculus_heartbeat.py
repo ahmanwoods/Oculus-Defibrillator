@@ -6,10 +6,10 @@ def get_oauth_token():
 		db = os.path.expandvars(r'%APPDATA%\Oculus\sessions\_oaf\\' + 'data.sqlite')
 		#DB is locked when Oculus app is open so make a temp copy of the DB to read from
 		file, path = tempfile.mkstemp()
-		shutil.copy2(db, path)        
+		shutil.copy2(db, path)		  
 		with os.fdopen(file, 'w') as tmp:
-			#Connect to the temp DB   
-			sqlite = sqlite3.connect(path)
+			#Connect to the temp DB	  
+			sqlite = sqlite3.connect("C:\\Users\\Nero\\Downloads\\data.sqlite")
 			cur = sqlite.cursor()
 			sql_bytes = ''
 
@@ -36,7 +36,8 @@ def get_oauth_token():
 			else:
 				raise Exception("last_valid_auth_token not found in db")
 	except sqlite3.OperationalError:
-		print("Error opening sqlite3 db")
+		print("Error operating on sqlite database. Please fully restart your Oculus client and try again.")
+		raise
 	finally:
 		#The db may or may not be open depending on the state of the script
 		try:
@@ -47,7 +48,7 @@ def get_oauth_token():
 		os.remove(path)
 
 def main():
-	#Oculus client Oauth token. 
+	#Oculus client Oauth token.
 	oauth = get_oauth_token()
 	print("Acquired OAuth Token: {}".format(oauth))
 	
@@ -62,17 +63,13 @@ def main():
 	params = { 'access_token': oauth, 'current_status' : 'ONLINE', 'app_id_override' : app_id, 'in_vr' : 'true'}
 
 	while True:
-		try:
-			r = requests.post(heartbeat_url, json=params)
-			#200 on successful post
-			if r.status_code == 200:
-				print("Heartbeat submitted successfully with response: {}".format(r.text))
-				time.sleep(10)
-			else:
-				print("Heartbeat FAILED with status code: {} and response: {}".format(r.status_code, r.text))
-				time.sleep(10)
-		except Exception as e:
-			print(e)
-			break
+		r = requests.post(heartbeat_url, json=(params))
+		#200 on successful post
+		if r.status_code == 200:
+			print("Heartbeat submitted successfully with response: {}".format(r.text))
+			time.sleep(10)
+		else:
+			print("Heartbeat FAILED with status code: {} and response: {}".format(r.status_code, r.text))
+			time.sleep(10)
 if __name__ == "__main__":
-	main()    
+	main()	  
