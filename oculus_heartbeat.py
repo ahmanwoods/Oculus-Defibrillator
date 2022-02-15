@@ -9,7 +9,7 @@ def get_oauth_token():
 		shutil.copy2(db, path)		  
 		with os.fdopen(file, 'w') as tmp:
 			#Connect to the temp DB	  
-			sqlite = sqlite3.connect("C:\\Users\\Nero\\Downloads\\data.sqlite")
+			sqlite = sqlite3.connect(path)
 			cur = sqlite.cursor()
 			sql_bytes = ''
 
