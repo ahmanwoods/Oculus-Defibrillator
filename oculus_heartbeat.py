@@ -1,4 +1,4 @@
-import sqlite3, tempfile, shutil, os, time, requests
+import sqlite3, tempfile, shutil, os, time, requests, json
 
 def get_oauth_token():
 	try:
@@ -30,9 +30,15 @@ def get_oauth_token():
 
 			#Extract the token
 			if start_offset != -1:
-				delimeter_offset = sql_bytes.find(b'\x1a\x00\x00\x00last_valid_fb_access_token')
-				token = sql_bytes[start_offset : delimeter_offset]
-				return token.decode('ascii')
+				#DBs generated from a meta account have a slightly different layout to ones from facebook accounts and vice versa
+				facebook_db_bytes = b'\x1a\x00\x00\x00last_valid_fb_access_token'
+				meta_db_bytes = b'\x1a\x00\x00\x00last_valid_auth_token_type'
+				delimeter_offset = sql_bytes.find(meta_db_bytes) if sql_bytes.find(meta_db_bytes) != -1 else sql_bytes.find(facebook_db_bytes)
+				if delimeter_offset != -1:
+					token = sql_bytes[start_offset : delimeter_offset]
+					return token.decode('ascii')
+				else:
+					raise Exception("last_valid_fb_access_token or last_valid_auth_token_type not found in db")
 			else:
 				raise Exception("last_valid_auth_token not found in db")
 	except sqlite3.OperationalError:
@@ -61,6 +67,8 @@ def main():
 
 	#Paramaters for API request. Chance for issues with rich presence but I'm not sure which titles use it.
 	params = { 'access_token': oauth, 'current_status' : 'ONLINE', 'app_id_override' : app_id, 'in_vr' : 'true'}
+	
+	access_token_violation_error = "Error validating access token: The session has been invalidated because the user changed their password or Facebook has changed the session for security reasons."
 
 	while True:
 		r = requests.post(heartbeat_url, json=(params))
@@ -70,6 +78,10 @@ def main():
 			time.sleep(10)
 		else:
 			print("Heartbeat FAILED with status code: {} and response: {}".format(r.status_code, r.text))
+			if r.status_code == 400 and json.loads(r.text)['error']['message'] == access_token_violation_error:
+				print("Token in database is invalid. Please navigate to %appdata%/Oculus and delete the \"sessions\" folder. This will require you to sign back into your account. Make a backup if necessary!")
+				print("After signing in, COMPLETELY CLOSE your Oculus client and restart it (this may require a reboot!)")
 			time.sleep(10)
+            
 if __name__ == "__main__":
-	main()	  
+	main()
