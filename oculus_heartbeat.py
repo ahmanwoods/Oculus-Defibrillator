@@ -79,7 +79,7 @@ def main():
 		else:
 			print("Heartbeat FAILED with status code: {} and response: {}".format(r.status_code, r.text))
 			if r.status_code == 400 and json.loads(r.text)['error']['message'] == access_token_violation_error:
-				print("Token in database is invalid. Please navigate to %appdata%/Oculus and delete the \"sessions\" folder. This will require you to sign back into your account. Make a backup if necessary!")
+				print("Token in database is invalid. Please COMPLETELY CLOSE your Oculus client, navigate to %appdata%/Oculus and delete the \"sessions\" folder. This will require you to sign back into your account. Make a backup if necessary!")
 				print("After signing in, COMPLETELY CLOSE your Oculus client and restart it (this may require a reboot!)")
 			time.sleep(10)
             
